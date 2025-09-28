@@ -1,0 +1,15 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .text {
+      font-family: 'Inter', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      fill: #003366;
+    }
+    .swoosh {
+      fill: #c8102e;
+    }
+  </style>
+  <text x="10" y="55" class="text">HDI</text>
+  <path class="swoosh" d="M 120 20 C 140 20, 150 50, 170 50 S 190 20, 200 20 L 200 30 C 180 30, 170 60, 150 60 S 130 30, 120 30 Z" />
+</svg>

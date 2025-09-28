@@ -58,8 +58,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ topics, onStartShowcase, o
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
       <header className="text-center mb-8 flex flex-col items-center">
-        <img src="https://i.imgur.com/8Q7L5x2.png" alt="VDI English Logo" className="h-24" />
-        <p className="text-lg text-gray-300 mt-4">Admin Dashboard</p>
+        <img src="/assets/HDI-LOGO.png" alt="HDI English Logo" className="h-24" />
+        <p className="text-lg text-gray-300 mt-4">English Vocabulary Showcase</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
