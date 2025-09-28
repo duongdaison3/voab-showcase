@@ -1,0 +1,5 @@
+{
+  "name": "Vocabulary Showcase",
+  "description": "An interactive vocabulary game where two players compete to identify images against the clock. Admins can create and manage image showcases for the game.",
+  "requestFramePermissions": []
+}
