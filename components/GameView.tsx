@@ -19,7 +19,7 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
   const [players, setPlayers] = useState<[Player, Player]>(initialPlayers);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [revealedAnswer, setRevealedAnswer] = useState<string | null>(null);
+  const [revealedState, setRevealedState] = useState<{ answer: string; type: 'correct' | 'pass' } | null>(null);
   
   const [player1TimeUp, setPlayer1TimeUp] = useState(false);
   const [player2TimeUp, setPlayer2TimeUp] = useState(false);
@@ -86,7 +86,7 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
   const handleCorrectAnswer = () => {
     if ((currentPlayerIndex === 0 && player1TimeUp) || (currentPlayerIndex === 1 && player2TimeUp)) return;
 
-    setRevealedAnswer(shuffledImages[currentImageIndex].name);
+    setRevealedState({ answer: shuffledImages[currentImageIndex].name, type: 'correct' });
 
     const newPlayers = players.map((p, index) =>
       index === currentPlayerIndex ? { ...p, score: p.score + 1 } : p
@@ -95,7 +95,7 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
     setPlayers(newPlayers);
 
     setTimeout(() => {
-      setRevealedAnswer(null);
+      setRevealedState(null);
       
       if (currentImageIndex === shuffledImages.length - 1) {
         onGameOver(newPlayers);
@@ -109,19 +109,23 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
   const handlePass = () => {
     if ((currentPlayerIndex === 0 && player1TimeUp) || (currentPlayerIndex === 1 && player2TimeUp)) return;
 
+    setRevealedState({ answer: shuffledImages[currentImageIndex].name, type: 'pass' });
+
     if (currentPlayerIndex === 0) {
       p1DeductTime(PASS_PENALTY);
     } else {
       p2DeductTime(PASS_PENALTY);
     }
 
-    if (currentImageIndex === shuffledImages.length - 1) {
-      onGameOver(players);
-      return;
-    }
-    
-    setCurrentImageIndex(prev => (prev + 1) % shuffledImages.length);
-    switchTurn();
+    setTimeout(() => {
+      setRevealedState(null);
+      if (currentImageIndex === shuffledImages.length - 1) {
+        onGameOver(players);
+      } else {
+        setCurrentImageIndex(prev => (prev + 1) % shuffledImages.length);
+        switchTurn();
+      }
+    }, 1500);
   };
 
   const handleRequestStop = () => {
@@ -157,9 +161,9 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
         {currentImage ? (
             <div className="relative w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden">
                  <img src={currentImage.dataUrl} alt="Vocabulary item" className="w-full h-full object-contain" />
-                 {revealedAnswer && (
+                 {revealedState && (
                      <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
-                         <p className="text-4xl font-bold text-green-400 animate-pulse">{revealedAnswer}</p>
+                         <p className={`text-4xl font-bold animate-pulse ${revealedState.type === 'correct' ? 'text-green-400' : 'text-red-500'}`}>{revealedState.answer}</p>
                      </div>
                  )}
             </div>
