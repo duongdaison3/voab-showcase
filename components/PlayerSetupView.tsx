@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import type { ShowcaseTopic } from '../types';
 
@@ -22,9 +20,9 @@ export const PlayerSetupView: React.FC<PlayerSetupViewProps> = ({ topic, onGameS
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-md bg-brand-dark p-8 rounded-lg shadow-lg text-center">
-            <h1 className="text-2xl font-bold text-brand-accent mb-2">Get Ready!</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 animate-fade-in">
+        <div className="w-full max-w-md bg-slate-900/50 backdrop-blur-sm border border-blue-500/30 rounded-xl shadow-2xl p-8 text-center">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-brand-light to-brand-accent text-transparent bg-clip-text mb-2">Get Ready!</h1>
             <p className="text-lg text-gray-300 mb-6">Showcase: <span className="font-semibold">{topic.name}</span></p>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -35,7 +33,7 @@ export const PlayerSetupView: React.FC<PlayerSetupViewProps> = ({ topic, onGameS
                         id="player1"
                         value={player1Name}
                         onChange={(e) => setPlayer1Name(e.target.value)}
-                        className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-accent focus:border-brand-accent"
+                        className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
                         required 
                     />
                 </div>
@@ -46,7 +44,7 @@ export const PlayerSetupView: React.FC<PlayerSetupViewProps> = ({ topic, onGameS
                         id="player2"
                         value={player2Name}
                         onChange={(e) => setPlayer2Name(e.target.value)}
-                        className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-accent focus:border-brand-accent"
+                        className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
                         required 
                     />
                 </div>
@@ -57,17 +55,17 @@ export const PlayerSetupView: React.FC<PlayerSetupViewProps> = ({ topic, onGameS
                     id="game-time"
                     value={gameTime}
                     onChange={(e) => setGameTime(parseInt(e.target.value, 10))}
-                    className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-accent focus:border-brand-accent"
+                    className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
                     min="1"
                     max="10"
                     required
                   />
                 </div>
-                <div className="flex gap-4">
-                    <button type="button" onClick={onBack} className="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                <div className="flex gap-4 pt-4">
+                    <button type="button" onClick={onBack} className="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
                         Back
                     </button>
-                    <button type="submit" className="w-full bg-brand-secondary hover:bg-brand-primary text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                    <button type="submit" className="w-full bg-gradient-to-r from-brand-secondary to-brand-accent hover:scale-105 transform transition-transform duration-200 shadow-lg text-white font-bold py-3 px-4 rounded-lg">
                         Start Game
                     </button>
                 </div>

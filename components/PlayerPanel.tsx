@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Player } from '../types';
 import { TimerDisplay } from './TimerDisplay';
@@ -26,7 +25,7 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, time, totalTim
   };
   
   return (
-    <div className={`flex flex-col items-center p-6 rounded-lg transition-all duration-500 ${isActive ? 'bg-brand-primary shadow-2xl scale-105' : 'bg-brand-dark'}`}>
+    <div className={`flex flex-col items-center p-6 rounded-xl transition-all duration-500 ${isActive ? 'bg-gradient-to-br from-brand-primary to-blue-800 shadow-2xl scale-105 border-2 border-brand-accent animate-glow' : 'bg-slate-900/50 backdrop-blur-sm border border-blue-500/30 shadow-lg'}`}>
       <h2 className="text-3xl font-bold text-brand-accent mb-4">{player.name}</h2>
       <div className="mb-6">
         <p className="text-lg text-gray-400">Score</p>
@@ -43,7 +42,7 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, time, totalTim
             cy="80"
             r={radius}
             strokeWidth="10"
-            className="stroke-gray-700"
+            className="stroke-gray-700/50"
             fill="transparent"
           />
           {/* Progress indicator */}
@@ -67,14 +66,14 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, time, totalTim
         <button 
           onClick={onCorrectAnswer} 
           disabled={!isActive || isTimeUp}
-          className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-green-500"
+          className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400"
         >
           Correct Answer
         </button>
         <button 
           onClick={onPass}
           disabled={!isActive || isTimeUp}
-          className="w-full bg-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-amber-500"
+          className="w-full bg-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
         >
           Pass (-5s)
         </button>
