@@ -3,12 +3,72 @@ import { ShowcaseTopic, ShowcaseImage, GameResult } from '../types';
 import { saveTopic } from '../services/showcaseService';
 import { getHistory } from '../services/historyService';
 import { ImageUploader } from './ImageUploader';
+import { ImageSearch } from './ImageSearch';
 
 interface AdminViewProps {
   topics: ShowcaseTopic[];
   onStartShowcase: (topic: ShowcaseTopic) => void;
   onTopicCreated: () => void;
 }
+
+const ImagePreviewModal: React.FC<{image: ShowcaseImage, onClose: () => void}> = ({ image, onClose }) => {
+    const [isZoomed, setIsZoomed] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'Escape') {
+            onClose();
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onClose]);
+
+    // Reset zoom when image changes
+    useEffect(() => {
+        setIsZoomed(false);
+    }, [image]);
+
+    return (
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 animate-fade-in" 
+            role="dialog" 
+            aria-modal="true" 
+            aria-labelledby="image-preview-title"
+            onClick={onClose} // Close on backdrop click
+        >
+            <div 
+                className="bg-brand-dark p-4 rounded-lg shadow-2xl max-w-4xl max-h-[90vh] w-full mx-4 flex flex-col relative"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal content
+            >
+                <div className="flex justify-between items-center mb-2">
+                     <h2 id="image-preview-title" className="text-xl font-bold text-brand-light truncate pr-10">{image.name}</h2>
+                     <button 
+                        onClick={onClose} 
+                        className="text-gray-400 hover:text-white text-3xl font-bold absolute top-2 right-4 z-10"
+                        aria-label="Close image preview"
+                     >
+                        &times;
+                     </button>
+                </div>
+                <div className="flex-grow overflow-auto">
+                    <img 
+                        src={image.dataUrl} 
+                        alt={`Preview of ${image.name}`}
+                        className={`w-full h-full object-contain transition-transform duration-300 ${isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'}`}
+                        onClick={() => setIsZoomed(!isZoomed)}
+                    />
+                </div>
+                 <div className="text-center text-gray-400 text-sm mt-2">
+                    Click image to {isZoomed ? 'zoom out' : 'zoom in'}. Click backdrop or press Esc to close.
+                 </div>
+            </div>
+        </div>
+    );
+};
+
 
 export const AdminView: React.FC<AdminViewProps> = ({ topics, onStartShowcase, onTopicCreated }) => {
   const [name, setName] = useState('');
@@ -18,6 +78,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ topics, onStartShowcase, o
   const [images, setImages] = useState<ShowcaseImage[]>([]);
   const [gameHistory, setGameHistory] = useState<GameResult[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'upload' | 'search'>('upload');
+  const [previewImage, setPreviewImage] = useState<ShowcaseImage | null>(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -65,6 +127,14 @@ export const AdminView: React.FC<AdminViewProps> = ({ topics, onStartShowcase, o
     await saveTopic(newTopic);
     onTopicCreated();
     handleFormReset();
+  };
+
+  const handleNameChange = (id: string, newName: string) => {
+    setImages(imgs => imgs.map(img => img.id === id ? { ...img, name: newName } : img));
+  };
+
+  const handleRemoveImage = (id: string) => {
+      setImages(imgs => imgs.filter(img => img.id !== id));
   };
   
   return (
@@ -120,7 +190,62 @@ export const AdminView: React.FC<AdminViewProps> = ({ topics, onStartShowcase, o
               <textarea id="description" value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"></textarea>
             </div>
             
-            <ImageUploader images={images} onImagesChange={setImages} />
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Images</label>
+              <div className="bg-gray-800/50 rounded-lg p-4">
+                <div className="flex border-b border-gray-700 mb-4">
+                    <button type="button" onClick={() => setActiveTab('upload')} className={`py-2 px-4 font-medium transition-colors ${activeTab === 'upload' ? 'border-b-2 border-brand-accent text-white' : 'text-gray-400 hover:text-white'}`}>
+                        Upload from Computer
+                    </button>
+                    <button type="button" onClick={() => setActiveTab('search')} className={`py-2 px-4 font-medium transition-colors ${activeTab === 'search' ? 'border-b-2 border-brand-accent text-white' : 'text-gray-400 hover:text-white'}`}>
+                        Search on Web
+                    </button>
+                </div>
+                {activeTab === 'upload' ? (
+                    <ImageUploader onImagesChange={newImages => setImages(prev => [...prev, ...newImages])} />
+                ) : (
+                    <ImageSearch onAddImages={newImages => setImages(prev => [...prev, ...newImages])} />
+                )}
+              </div>
+
+              {images.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-base font-semibold mb-2 text-gray-300">
+                    {images.length} Image{images.length > 1 ? 's' : ''} for Showcase
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-2 bg-brand-dark rounded-md">
+                    {images.map(image => (
+                      <div key={image.id} className="p-2 border border-gray-700 rounded-lg flex flex-col justify-between animate-fade-in">
+                        <div>
+                          <img 
+                            src={image.dataUrl} 
+                            alt={image.name} 
+                            className="w-full h-24 object-cover rounded-md mb-2 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => setPreviewImage(image)}
+                          />
+                          <input 
+                            type="text"
+                            value={image.name}
+                            onChange={(e) => handleNameChange(image.id, e.target.value)}
+                            className="w-full bg-gray-700 text-white p-1 rounded-md text-sm focus:ring-brand-accent focus:border-brand-accent"
+                            aria-label={`Image name for ${image.name}`}
+                          />
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveImage(image.id)}
+                          className="w-full mt-2 bg-red-700 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md transition-colors duration-200"
+                          aria-label={`Remove image ${image.name}`}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button type="submit" className="w-full bg-gradient-to-r from-brand-secondary to-brand-accent hover:scale-105 transform transition-transform duration-200 shadow-lg text-white font-bold py-3 px-4 rounded-lg">Save Showcase</button>
           </form>
         </div>
@@ -172,6 +297,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ topics, onStartShowcase, o
           )}
         </div>
       </div>
+      {previewImage && <ImagePreviewModal image={previewImage} onClose={() => setPreviewImage(null)} />}
     </div>
   );
 };

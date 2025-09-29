@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { GameState, ShowcaseTopic, Player, GameResult } from './types';
 import { getTopics } from './services/showcaseService';
@@ -78,7 +79,7 @@ const App: React.FC = () => {
         return null;
       case GameState.GAME_VIEW:
         if (selectedTopic && players) {
-          return <GameView topic={selectedTopic} initialPlayers={players} onGameOver={handleGameOver} onStopGame={handlePlayAgain} totalTime={gameTimeInSeconds} />;
+          return <GameView topic={selectedTopic} initialPlayers={players} onGameOver={handleGameOver} totalTime={gameTimeInSeconds} />;
         }
         return null;
       case GameState.GAME_OVER:

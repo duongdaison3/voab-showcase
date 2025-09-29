@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Player, ShowcaseTopic } from '../types';
 import { useTimer } from '../hooks/useTimer';
@@ -11,11 +10,10 @@ interface GameViewProps {
   topic: ShowcaseTopic;
   initialPlayers: [Player, Player];
   onGameOver: (players: [Player, Player]) => void;
-  onStopGame: () => void;
   totalTime: number; // Total time in seconds
 }
 
-export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGameOver, onStopGame, totalTime }) => {
+export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGameOver, totalTime }) => {
   const [players, setPlayers] = useState<[Player, Player]>(initialPlayers);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -51,6 +49,18 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
       onGameOver(players);
     }
   }, [player1TimeUp, player2TimeUp, onGameOver, players]);
+
+  // Automatically switch turns if the current player's time runs out.
+  useEffect(() => {
+    if (currentPlayerIndex === 0 && player1TimeUp && !player2TimeUp) {
+        p2Start();
+        setCurrentPlayerIndex(1);
+    } else if (currentPlayerIndex === 1 && player2TimeUp && !player1TimeUp) {
+        p1Start();
+        setCurrentPlayerIndex(0);
+    }
+  }, [player1TimeUp, player2TimeUp, currentPlayerIndex, p1Start, p2Start]);
+
 
   const switchTurn = useCallback(() => {
     const nextPlayerIndex = (currentPlayerIndex + 1) % 2;
@@ -97,10 +107,11 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
     setTimeout(() => {
       setRevealedState(null);
       
-      if (currentImageIndex === shuffledImages.length - 1) {
+      const isLastImage = currentImageIndex === shuffledImages.length - 1;
+      if (isLastImage) {
         onGameOver(newPlayers);
       } else {
-        setCurrentImageIndex(prev => (prev + 1) % shuffledImages.length);
+        setCurrentImageIndex(prev => prev + 1);
         switchTurn();
       }
     }, 1500);
@@ -119,10 +130,11 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
 
     setTimeout(() => {
       setRevealedState(null);
-      if (currentImageIndex === shuffledImages.length - 1) {
+      const isLastImage = currentImageIndex === shuffledImages.length - 1;
+      if (isLastImage) {
         onGameOver(players);
       } else {
-        setCurrentImageIndex(prev => (prev + 1) % shuffledImages.length);
+        setCurrentImageIndex(prev => prev + 1);
         switchTurn();
       }
     }, 1500);
@@ -187,7 +199,7 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="stop-dialog-title">
           <div className="bg-brand-dark p-8 rounded-lg shadow-2xl text-center max-w-sm w-full mx-4">
             <h2 id="stop-dialog-title" className="text-2xl font-bold text-brand-accent mb-4">Stop Game?</h2>
-            <p className="text-gray-300 mb-6">Are you sure you want to end the current showcase? All progress will be lost.</p>
+            <p className="text-gray-300 mb-6">Are you sure you want to end the showcase? The current scores will be saved as the final result.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={handleCancelStop}
@@ -196,7 +208,7 @@ export const GameView: React.FC<GameViewProps> = ({ topic, initialPlayers, onGam
                 Cancel
               </button>
               <button
-                onClick={onStopGame}
+                onClick={() => onGameOver(players)}
                 className="bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
               >
                 Confirm Stop
